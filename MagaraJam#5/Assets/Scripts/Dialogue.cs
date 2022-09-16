@@ -6,8 +6,6 @@ using UnityEngine;
 [System.Serializable]
 public class Dialogue
 {
-
-    public GameObject Image;
     public string name;
 
     [TextArea(3,10)]

@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class DialogueManager : MonoBehaviour
 {
     private Queue<string> sentences;
     private Dialogue[] currentDialogs;
+    private ChoiceMaker choiceMaker;
 
     public Animator animator;
     public TextMeshProUGUI nameText;
@@ -16,12 +18,16 @@ public class DialogueManager : MonoBehaviour
     public int dialogCount;
     public int maxDialogCount;
     public string context;
+    public bool isThereChoice;
 
     public DialogueStarter firstDialog;
+    public DialogueStarter dolapDialog;
+
 
     private void Start()
     {
         sentences = new Queue<string>();
+        choiceMaker = FindObjectOfType<ChoiceMaker>();
         firstDialog.TriggerDialog();
     }
     void Update()
@@ -32,8 +38,10 @@ public class DialogueManager : MonoBehaviour
         }
     }
     
-    public void StartDialog(Dialogue[] dialog)
+    public void StartDialog(Dialogue[] dialog, bool choice)
     {
+        Debug.Log(choice);
+        isThereChoice = choice;
         currentDialogs = dialog;
         animator.SetBool("isOpen", true);
         if (dialogCount == maxDialogCount)
@@ -47,7 +55,6 @@ public class DialogueManager : MonoBehaviour
         foreach (string sentence in dialog[dialogCount].sentences)
         {
             sentences.Enqueue(sentence);
-            Debug.Log(sentences.Count);
         }
         if(sentences.Count != 0)
             sentences.Dequeue();
@@ -65,7 +72,7 @@ public class DialogueManager : MonoBehaviour
         if (sentences.Count == 0)
         {
             dialogCount++;
-            StartDialog(currentDialogs);
+            StartDialog(currentDialogs, isThereChoice);
         }
         else
         {
@@ -88,6 +95,9 @@ public class DialogueManager : MonoBehaviour
     public void EndDialog()
     {
         animator.SetBool("isOpen", false);
+        if (isThereChoice == true)
+            choiceMaker.OpenChoiceScreen();
+        isThereChoice = false;
     }
 
 }
